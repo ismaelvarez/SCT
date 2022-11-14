@@ -1,5 +1,5 @@
 <template>
-    <b-container :id="optic.id" class="optic-item p-3 rounded">
+    <b-container :id="optic.id" class="optic-item p-3 rounded m-1">
         <b-row align-v="center">
             <b-col cols="2">
             <b-img :src="image(item)" blank-color="#abc" width="64" alt="placeholder" class="img-fluid rounded-sm rounded-circle w-100"></b-img>
@@ -32,9 +32,11 @@ export default {
         return optic.type == 'Filter' ? '' : optic.magnitude + units 
       },
       image(optic) {
+        if (optic.type == 'Filter')
+            return 'https://www.ubuy.com.py/productimg/?image=aHR0cHM6Ly9tLm1lZGlhLWFtYXpvbi5jb20vaW1hZ2VzL0kvNzFaMjRzTDV6dkwuX0FDX1NMMTUwMF8uanBn.jpg'
         return optic.type == 'Barlow' ? 
-        'https://nimax-img.de/Produktbilder/big/24891_1/Celestron-X-Cel-LX-1-25-2X-Barlow-lens.jpg' :
-        'https://m.media-amazon.com/images/I/61Jmu-uthLL._AC_SL1200_.jpg'
+        'https://www.amaina.com/546-thickbox_default2x/barlow-celestron-x-cel-lx-2x-125-c93529.jpg' :
+        'https://www.collinsdictionary.com/images/full/eyepiece_438364027.jpg'
       }
   }
 }

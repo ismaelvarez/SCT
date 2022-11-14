@@ -28,19 +28,15 @@
                     <li class="nav-item" v-if="telemetry">
                       <router-link to="/">Telemetry</router-link>
                     </li>
-                    <li class="nav-item" v-if="history">
-                      <router-link to="/">Observation History</router-link>
+                    <li class="nav-item" v-if="report">
+                      <router-link to="/report">Report</router-link>
                     </li>
                     <li class="nav-item" v-if="blocks">
-                      <router-link to="/blocks">Observation Blocks</router-link>
+                      <router-link to="/planner">Planning</router-link>
                     </li>
                     
                     <li class="nav-item" v-if="petition">
-                      <router-link to="/petition">Observing Petition</router-link>
-                    </li>
-                    
-                    <li class="nav-item" v-if="optics">
-                      <router-link to="/optics">Telescope Optics</router-link>
+                      <router-link to="/petitions">Petitions</router-link>
                     </li>
                   </b-nav>
                 </b-col>
@@ -71,6 +67,7 @@ export default {
       history : false,
       blocks : false,
       petition : true,
+      report: true,
       optics : false
     }
   },
@@ -81,6 +78,7 @@ export default {
       this.history = true;
       this.blocks = true;
       this.optics = true;
+      this.report = true;
     }
   },
   methods: {

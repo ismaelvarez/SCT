@@ -13,3 +13,29 @@
     top: -10px;
     right: -10px;
 }
+
+.petition-item {
+    background-color: #4FB477 !important;
+}
+
+.overlay-petition{
+    background-color: #207241 !important;
+}
+
+.petition-item:hover {
+    background-color: #207241 !important;
+}
+
+.petition-item:checked {
+    background-color: #207241 !important;
+}
+
+.petition-form {
+    overflow: auto;
+    max-height: 1080px;
+    background-color:#6ABEA7
+}
+
+.small-font {
+    font-size: 13px;
+}

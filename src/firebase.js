@@ -32,6 +32,7 @@ authLib.setPersistence(auth, authLib.browserLocalPersistence);
 const usersCollection = firestoreLib.collection(db, "users")
 const opticsCollection = firestoreLib.collection(db, "optics")
 const observingPetitionsCollection = firestoreLib.collection(db, "observing_petitions")
+const observingPlanCollection = firestoreLib.collection(db, "observationBlocks")
 
 // export utils/refs
 export {
@@ -42,5 +43,6 @@ export {
   analytics, 
   usersCollection,
   opticsCollection,
-  observingPetitionsCollection
+  observingPetitionsCollection,
+  observingPlanCollection
 }

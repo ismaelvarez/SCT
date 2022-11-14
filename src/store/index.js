@@ -11,7 +11,10 @@ export default new Vuex.Store({
     opticAdded : false,
     optics : [],
     petitionAdded : true,
-    petitions : []
+    petitions : [],
+    planAdded : false,
+    observationPlan : null,
+    observationPlanDoc : null
   },
   mutations: {
     setUserProfile(state, val) {
@@ -28,7 +31,13 @@ export default new Vuex.Store({
     },
     setPetitions(state, val) {
       state.petitions = val;
-    }
+    },
+    setPlanAdded(state, val) {
+      state.planAdded = val;
+    },
+    setObservationPlan(state, val) {
+      state.observationPlan = val;
+    },
   },
   actions: {
 
@@ -76,7 +85,6 @@ export default new Vuex.Store({
       if (docSnap.exists()) {
         // set user profile in state
         commit('setUserProfile', docSnap.data())
-        console.log(docSnap.data())
         localStorage.setItem("user", JSON.stringify(docSnap.data()));
         router.push('/')
       } else {
@@ -111,25 +119,34 @@ export default new Vuex.Store({
     // ==================
     // ||   PETITION   ||
     // ==================
-    async addObservingPetition({ commit }, {petition, optics}) {
+    async addObservingPetition({ commit }, {petition}) {
       // fetch user profile
-      petition.status = "Created"
       const petitionRef  = await fb.firestoreLib.addDoc(fb.observingPetitionsCollection, petition);
-      
-      const col = fb.firestoreLib.collection(fb.db, "observing_petitions", petitionRef.id, "optics")
 
-      const opticsRef  = await fb.firestoreLib.addDoc(col, {
-        optics: optics
-      });
-
-      if (opticsRef.id) {
+      if (petitionRef.id) {
         commit('setPetitionAdded', true)
       }
     },
 
-    async getPetitions({ commit }) {
+    async updateObservingPetition({ commit }, {petition, id}) {
       // fetch user profile
-      const querySnapshot  = await fb.firestoreLib.getDocs(fb.observingPetitionsCollection);
+      console.log(petition)
+
+      const petitionRef = fb.firestoreLib.doc(fb.db, "observing_petitions", id);
+
+      await fb.firestoreLib.updateDoc(petitionRef, petition);
+      
+      commit('setPetitionAdded', true)
+    },
+
+    async getPetitions({ commit }, {status}) {
+      // fetch user profile
+      var operator = "=="
+      if (status == "*")
+        operator = "!="
+      
+      const q = fb.firestoreLib.query(fb.firestoreLib.collection(fb.db, "observing_petitions"), fb.firestoreLib.where("status", operator, status));
+      const querySnapshot = await fb.firestoreLib.getDocs(q);
       var petitions = [];
 
       querySnapshot.forEach(doc => {
@@ -137,8 +154,61 @@ export default new Vuex.Store({
         petition.id = doc.id;
         petitions.push(petition);
       });
-      console.log(JSON.stringify(petitions));
+
       commit('setPetitions', petitions)
+    },
+
+    // ==================
+    // ||   PLANNING   ||
+    // ==================
+
+    async getObservingPlan({ commit }, date) {
+      // fetch user profile
+      console.log("getObservingPlan")
+      const q = fb.firestoreLib.query(fb.firestoreLib.collection(fb.db, "observationBlocks"), fb.firestoreLib.where("date", "==", date), fb.firestoreLib.limit(1));
+      const querySnapshot = await fb.firestoreLib.getDocs(q);
+      var plan = null
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        plan = doc.data();
+        plan.id = doc.id;
+        this.observationPlanDoc = doc
+        //for (var i = 0; i < plan.blocks.length;i++) {
+          //plan.blocks[i].petition.optics = {}
+        //}
+        console.log(plan)
+        commit('setObservationPlan', plan)
+      });
+
+    },
+
+    async saveObservingPlan({ commit }, plan) {
+      // fetch user profile
+      //petition.status = "Created"
+      //TODO Change petition status to assigned. It cannot be updated after that
+
+
+      if (this.state.observationPlan) {
+        await fb.firestoreLib.updateDoc(this.observationPlanDoc.ref, plan);
+        for (const block of plan.blocks) {
+          this.dispatch('updateObservingPetition', {petition : block.petition, id: block.petition.id}).finally()
+        }
+        
+        commit('setPlanAdded', true)
+      } else {
+        const planRef  = await fb.firestoreLib.addDoc(fb.observingPlanCollection, plan);
+    
+        if (planRef.id) {
+          commit('setPlanAdded', true)
+          for (const block of plan.blocks) {
+            console.log(block.petition)
+            this.dispatch('updateObservingPetition', {petition : block.petition, id: block.petition.id})
+          }
+
+        } else {
+          commit('setPlanAdded', false)
+        }
+      }
     },
     
   },

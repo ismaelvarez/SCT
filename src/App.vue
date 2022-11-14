@@ -1,7 +1,7 @@
 <template>
     <div id="app">
       <div id="nav">
-        <SiteNav v-if="showNav"></SiteNav>
+        <SideNav v-if="showNav"></SideNav>
         <router-view/>
       </div>
     </div>
@@ -9,10 +9,10 @@
 
 <script>
 import { mapState } from 'vuex'
-import SiteNav from '@/components/SiteNav'
+import SideNav from '@/components/SideNav'
 export default {
   components: {
-    SiteNav
+    SideNav
   },
   computed: {
     ...mapState(['userProfile']),

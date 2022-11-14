@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-media v-for="optic in opticList" :key="optic.id" :class="isSelected(optic)"  tag="li" style="display:inline" vertical-align="center" v-on:click="setSelectedOptic($event, optic)">
+        <b-media v-for="optic in opticList" :key="optic.id" :class="isSelected(optic)"  tag="li" style="display:inline" vertical-align="center" v-on:click="setSelectedOptic($event, optic)" class=" overflow-auto">
           <OpticItem :optic="optic"/>
         </b-media>
     </div>

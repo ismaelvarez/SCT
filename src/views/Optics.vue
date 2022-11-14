@@ -11,7 +11,7 @@
       <b-row class="justify-content-md-center optics-container">
         <b-col md="6" sm="12" order-md="1" order-sm="2">
           <h3>Optics list</h3>
-          <div>
+          <div class="overflow-auto" style="max-height: 600px">
             <ul class="list-unstyled">
               <OpticList/>
             </ul>
@@ -98,7 +98,7 @@ export default {
           show : false
         },
         miscLabel : "Magnification",
-        types: [{ text: 'Select One', value: null }, {text : 'Barlow', value : 'Barlow'}, {text : 'Lens', value : 'Lens'}, 'Filter'],
+        types: [{ text: 'Select One', value: null }, {text : 'Barlow', value : 'Barlow'}, {text : 'Eyepiece', value : 'Eyepiece'}, 'Filter'],
         show: true
       }
     },
@@ -106,12 +106,14 @@ export default {
       onSubmit(event) {
         event.preventDefault()
         this.$store.dispatch('addOptics', this.formData).then(() => {
-            this.onReset(event)
+            
         }).catch((error) => {
             this.error.message = error;
             this.error.show = true;
         }).finally(()=> {
           this.show = true;
+          this.optics.push(this.formData)
+          this.onReset(event)
         })
       },
       onReset(event) {

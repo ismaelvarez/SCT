@@ -34,26 +34,37 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/petition',
-    name: 'Observing Petition',
+    path: '/petitions',
+    name: 'Petitions',
     meta: {
       requiresAuth: true
     },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/ObservingPetition.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Petitions.vue')
   },
   {
-    path: '/blocks',
-    name: 'Observing Blocks',
+    path: '/planner',
+    name: 'Observation planner',
     meta: {
       requiresAuth: true
     },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/ObservingBlocks.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/ObservationPlanner.vue')
+  },
+  {
+    path: '/report',
+    name: 'Observation report',
+    meta: {
+      requiresAuth: true
+    },
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/ObservationReport.vue')
   },
   {
     path: '/optics',

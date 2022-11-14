@@ -1,7 +1,7 @@
 <template>
     <div v-if="petitionList">
-        <b-media v-for="petition in petitionList" :key="petition.id" :class="isSelected(petition)"  tag="li" style="display:inline" vertical-align="center" v-on:click="setSelectedOptic($event, petition)">
-          <PetitionItem :petition="petition"/>
+        <b-media v-for="petition in petitionList" :key="petition.id" :class="isSelected(petition)"  tag="li" style="display:inline" vertical-align="center" v-on:click="setSelectedPetition($event, petition)">
+          <PetitionItem :petition="petition" :mustDrag="isDraggable"/>
         </b-media>
     </div>
 </template>
@@ -15,13 +15,17 @@ export default {
   },
   props: {
     petitions: {
-        type: Object
+        type: Array
+    },
+    mustDrag : {
+        type : Boolean
     }
   },
   data() {
     return {
       selectedPetitions : [],
-      petitionList : this.petitions
+      petitionList : this.petitions,
+      isDraggable : this.mustDrag
     }
   },
   
@@ -29,23 +33,25 @@ export default {
     if (!this.petitionList)
       this.$store.dispatch('getPetitions').then(() => {
           this.petitionList = this.$store.state.petitions;
+          this.$emit('allPetitions', this.petitionList);
       })
   },
   beforeUnmount() {
     //alert("lll")
   },
   methods: {
-      setSelectedOptic(ev, optic) {
-          console.log(optic);
-        /*var element = document.getElementById(optic.id);
+      setSelectedPetition(ev, petition) {
+        console.log(petition);
+        this.$emit('onPetitionselected', petition);
+        /*var element = document.getElementById(petition.id);
         if (element.classList.value.includes('selected')) {
           element.classList.remove('selected');
-          this.selectedOptics.splice(this.selectedOptics.indexOf(optic), 1)
-          this.$emit('onOpticUnselected', optic);
+          //this.selectedOptics.splice(this.selectedOptics.indexOf(optic), 1)
+          
         } else{
           element.classList.add('selected');
-          this.selectedOptics.push(optic);
-          this.$emit('opticSelected', optic);
+          //this.selectedOptics.push(optic);
+          //this.$emit('opticSelected', optic);
         }*/
         
       },

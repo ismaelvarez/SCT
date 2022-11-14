@@ -9,15 +9,19 @@
       </b-row>
       <b-row>
         <b-col md="6" sm="12" order-md="1" order-sm="2"  order="2">
-          <div style="">
+          <div style="overflow-y:auto;overflow-x: hidden;height:500px">
             <ul class="list-unstyled h-75" style="display: flex; flex-direction: column;">
-              <PetitionList />
+              <div v-if="petitions">
+                <b-media v-for="petition in petitions" :key="petition.id" tag="li" style="display:inline" vertical-align="center" v-on:click="petitionSelected(petition)">
+                  <PetitionItem :petition="petition" :mustDrag="false"/>
+                </b-media>
+              </div>
             </ul>
           </div>
         </b-col>
-        <b-col md="5" offset-md="1" offset-sm="1" sm="10" order-sm="1" order-xs="1" class="rounded p-3" style="background-color:#6ABEA7">
+        <b-col md="5" offset-md="1" offset-sm="1" sm="10" order-sm="1" order-xs="1" class="rounded p-3 petition-form" style="">
           <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-            <b-overlay :show="overlay" rounded="sm">
+            <b-overlay :show="overlay" rounded="sm" bg-color="#207241">
               <b-form-group id="ig1" label="Search:"  
                 label-for="name" label-class="font-weight-bold pt-0"
               >
@@ -26,7 +30,7 @@
                     <b-col cols="10">
                       <b-form-input
                         id="name"
-                        v-model="simbad.name"
+                        v-model="searcher.name"
                         type="text"
                       ></b-form-input>
                     </b-col>
@@ -40,8 +44,8 @@
 
             <b-container v-if="formData.object" class="rounded p-3" style="background-color: white">
               <b-row>
-                <b-col class="text-center">
-                  <h6 class="font-weight-bold mt-0" > Object Data </h6>
+                <b-col>
+                  <h6 class="font-weight-bold mt-0" > Object Information </h6>
                   <hr/>
                 </b-col>
                 <b-col cols="2">
@@ -69,7 +73,7 @@
                   <p class="font-weight-bold m-0">RA:  </p>
                 </b-col>
                 <b-col>
-                  {{ formData.object.ra }}
+                  {{ formData.object.rightAscension }}
                 </b-col>
               </b-row>
               <b-row>
@@ -77,7 +81,15 @@
                   <p class="font-weight-bold m-0">DEC: </p>
                 </b-col>
                 <b-col>
-                  {{ formData.object.dec }}
+                  {{ formData.object.declination }}
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col>
+                  <p class="font-weight-bold m-0">Constellation:  </p>
+                </b-col>
+                <b-col>
+                  {{ formData.object.constellation }}
                 </b-col>
               </b-row>
               <b-row>
@@ -90,7 +102,7 @@
               </b-row>
             </b-container>
 
-            <b-alert v-if="simbad.error" show variant="danger"> {{ simbad.error }}</b-alert>
+            <b-alert v-if="searcher.error" show variant="danger"> {{ searcher.error }}</b-alert>
 
             <hr/>
 
@@ -108,27 +120,21 @@
 
             <hr/>
 
-            <div class="mt-1" style="display:inline">
-              <b-row align-v="center">
-                <b-col cols="10">
-                  <h6 class="m-0 font-weight-bold">Telescope Optics:</h6>
-                </b-col>
-                <b-col>
-                  <b-button variant="success" id="show-btn" pill @click="showModal"><b-icon icon="plus-circle"></b-icon></b-button>
-                </b-col>
-              </b-row>
-            </div>
+            <b-form-group id="input-group-2" label="Observation Slots (One slot = 30min): "
+              label-for="input-2" class="mt-2"  label-class="font-weight-bold pt-0">
+                <b-form-input 
+                  id="numBlocks"
+                  v-model="formData.blocks"
+                  type="number"
+                  min="2"
+                  max="10"
+                  value="2"
+                  required
+                  >
 
-            <div style="min-height:100px; overflow:auto;" class="mt-1 observing-petition-optics rounded p-1">
-              <ul class="list-unstyled w-75" style=" margin:auto">
-                  <b-media v-for="optic in selectedOptics" :key="optic.id" v-bind:id="optic.id" :ref="optic.id" class=""  tag="li" style="display:inline" vertical-align="center">
-                    <OpticItem :optic="optic"/>
-                    <b-button variant="danger" id="show-btn" pill class="delete-optic" @click="deleteOptic(optic)"><b-icon icon="trash"></b-icon></b-button>
-
-                  </b-media>
-              </ul>
-            </div>
-              
+                </b-form-input>
+            </b-form-group>
+            <hr/>
             <div class="mt-3  text-center">
               <b-button type="submit" variant="primary">Submit</b-button>
               <b-button type="reset" variant="danger" class="m-2">Reset</b-button>
@@ -140,24 +146,6 @@
         </b-col>
       </b-row>
     </b-container>
-
-    <div class="w-100">
-          <b-modal ref="optics-modal" id="lloremos" size="lg" title="Extra Large Modal"  @ok="handleOk" @hide="hideModal">
-            <b-container fluid>
-              <b-row class="justify-content-md-center optics-container">
-                <b-col md="12" sm="12" order-md="1" order-sm="2">
-                  <h3>Optics list</h3>
-                  <div>
-                    <ul class="list-unstyled">
-                      <OpticList @opticSelected="onOpticSelected($event)" @onOpticUnselected="onOpticUnselected($event)"/>
-                    </ul>
-                  </div>
-                </b-col>
-              </b-row>
-            </b-container>
-            
-          </b-modal>
-        </div>
   </div>
   
 </template>
@@ -165,26 +153,27 @@
 <script>
 
 import TopNav from '@/components/TopNav.vue'
-import OpticList from '@/components/OpticList.vue'
-import PetitionList from '@/components/PetitionList.vue'
-import OpticItem from '@/components/OpticItem.vue'
 import {SimbadAPI} from '@/axios/SimbadAPI';
+import PetitionItem from '@/components/PetitionItem.vue'
+
+
 
 export default {
     components: {
       TopNav,
-      OpticList,
-      OpticItem,
-      PetitionList
+      PetitionItem
     },
     data() {
       return {
+        petitions : [],
+        id : null,
         formData: {
-          description: '',
+          description: 'Just a description',
+          blocks : 2,
           object : null,
-          name : null
+          status: ""
         },
-        simbad : {
+        searcher : {
           name : null,
           error : null
         },
@@ -198,22 +187,33 @@ export default {
         }
       }
     },
+    
+  
+    beforeCreate () {
+        this.$store.dispatch('getPetitions', {status: "*"}).then(() => {
+            this.petitions = this.$store.state.petitions;
+        })
+    },
     methods: {
+      isSelected(petition) {
+        if (petition.id == this.id)
+          return "overlay-petition"
+        return ""
+      },
       search() {
-        if (this.simbad.name != null && this.simbad.name.length > 0) {
-          const apiService = new SimbadAPI();
-          
+        if (this.searcher.name != null && this.searcher.name.length > 0) {
           this.overlay = true;
-          const object = apiService.getObject(this.simbad.name);
-          object
-          .then(result => {
+
+          const apiService = new SimbadAPI();
+          const object = apiService.getObject(this.searcher.name);
+          object.then(result => {
             const status = result.status;
               if (status == 200) {
                 this.formData.object = result.data
-                this.simbad.error = null
+                this.searcher.error = null
               } else if (status == 204) {
                 this.formData.object = null
-                this.simbad.error = "No objects with name " + this.simbad.name
+                this.searcher.error = "No objects with name " + this.searcher.name
               }
           }).catch(error => {
             console.log(error);
@@ -221,33 +221,46 @@ export default {
           
         }
         else
-          this.simbad.error = "Fill the name input "
+          this.searcher.error = "Fill the name input "
       },
       onSubmit(event) {
-        event.preventDefault()
+        //event.preventDefault()
 
-        if (this.selectedOptics.length == 0 || !this.formData.object) {
+        if (!this.formData.object) {
+          this.onReset(event)
           this.error.show = true;
-          this.error.message = "Add object or optics";
+          this.error.message = "No object has been selected";
           return;
         }
         
         this.error.show = false;
 
-        this.$store.dispatch('addObservingPetition', {petition : this.formData, optics : this.selectedOptics}).then(() => {
-          this.onReset(event)
-        }).finally(()=> {
-          this.show = true;
-        })
+        this.formData.status = "Created";
+
+        if (this.id == null) {
+          this.$store.dispatch('addObservingPetition', {petition : this.formData}).then(() => {
+            //this.onReset(event)
+          }).finally(()=> {
+            this.show = true;
+
+          })
+        }
+        else {
+          this.$store.dispatch('updateObservingPetition', {petition : this.formData, id: this.id}).then(() => {
+            //this.onReset(event)
+          }).finally(()=> {
+            //this.show = true;
+          })
+        }
       },
       onReset(event) {
         event.preventDefault()
         // Reset our form values
-        this.formData.description = '',
-        this.formData.objectType = null,
+        this.formData.description = 'Just a description',
         this.formData.object = null,
-        this.selectedOptics = [],
-        this.simbad.name = ''
+        this.formData.blocks = 2,
+        this.searcher.name = ''
+        this.id = null;
         // Trick to reset/clear native browser form validation state
         this.show = false
 
@@ -255,40 +268,13 @@ export default {
           this.show = true
         })
       },
-      showModal() {
-        this.$refs['optics-modal'].show()
-      },
-      hideModal() {
-        //this.$refs['optics-modal'].hide()
-        this.opticsTmp = []
-      },
-      toggleModal() {
-        // We pass the ID of the button that we want to return focus to
-        // when the modal has hidden
-        this.$refs['optics-modal'].toggle('#toggle-btn')
-        this.opticsTmp = []
-      },
-      handleOk(event) {
-        if (this.opticsTmp.length > 0) {
-          this.selectedOptics = this.opticsTmp;
-          this.opticsTmp = []
-        } else {
-          event.preventDefault()
-        }
-      },
-      onOpticSelected(optic) {
-        this.opticsTmp.push(optic)
-        //this.toggleModal()
-      },
-      onOpticUnselected(optic) {
-        this.opticsTmp.splice(this.opticsTmp.indexOf(optic), 1)
-        //this.toggleModal()
-      },
-      deleteOptic(optic) {
-        this.selectedOptics.splice(optic, 1);
-      },
-      deleteObject() {
-        this.formData.object = null
+      petitionSelected(petition, event) {
+        console.log(JSON.stringify(event))
+        this.id = petition.id;
+        this.formData.blocks = petition.blocks,
+        this.formData.description = petition.description,
+        this.formData.object = petition.object
+        this.searcher.name = petition.object.name
       }
     }
   }
