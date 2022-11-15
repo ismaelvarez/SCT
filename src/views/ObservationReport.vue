@@ -77,6 +77,23 @@
                 </div>
               </b-col>
             </b-row>
+            <b-row class="mb-3">
+              <b-col cols="12">
+                <div>
+                   <b-button-group>
+                    <b-button variant="primary">
+                      <b-icon icon="clock"></b-icon> OnStep calibration
+                    </b-button>
+                    <b-button variant="primary">
+                      <b-icon icon="inbox-fill"></b-icon> Incidences
+                    </b-button>
+                    <b-button variant="primary" v-b-modal.modal-lg>
+                      <b-icon icon="person-fill"></b-icon> Add Observation
+                    </b-button>
+                  </b-button-group>
+                </div>
+              </b-col>
+            </b-row>
           </b-container>
         </b-col>
         <b-col md="7" sm="12" order-md="1" order-sm="2"  order="2" class='drop-zone block_height overflow'>
@@ -180,6 +197,7 @@ export default {
       return {
         overlay : false,
         plan : null,
+        plans: [],
         value : '',
         loading : false,
         selectedDate : "",
@@ -191,6 +209,14 @@ export default {
       //this.$store.dispatch('getPetitions', {status: "Created"}).then(() => {
       //    this.petitions = this.$store.state.petitions;
       //})
+       this.$store.dispatch('getObservingPlans', now).then(() => {
+          if (this.$store.state.observationPlans.length > 0) {
+            this.plans = this.$store.state.observationPlans
+          }
+        }).finally( () => {
+          this.overlay = false;
+          this.loading = false;
+        });
 
     },
     methods: {
@@ -280,9 +306,9 @@ export default {
           
           var now = moment(String(this.selectedDate)).format('YYYY-MM-DD')
 
-          this.$store.dispatch('getObservingPlan', now).then(() => {
-              if (this.$store.state.observationPlan) {
-                this.plan = this.$store.state.observationPlan
+          this.$store.dispatch('getObservingPlans', now).then(() => {
+              if (this.$store.state.observationPlans) {
+                this.plan = this.$store.state.observationPlans
               }
             }).finally( () => {
             this.overlay = false;

@@ -14,7 +14,8 @@ export default new Vuex.Store({
     petitions : [],
     planAdded : false,
     observationPlan : null,
-    observationPlanDoc : null
+    observationPlanDoc : null,
+    observationPlans: []
   },
   mutations: {
     setUserProfile(state, val) {
@@ -34,6 +35,9 @@ export default new Vuex.Store({
     },
     setPlanAdded(state, val) {
       state.planAdded = val;
+    },
+    setObservationPlans(state, val) {
+      state.observationPlans = val;
     },
     setObservationPlan(state, val) {
       state.observationPlan = val;
@@ -162,9 +166,22 @@ export default new Vuex.Store({
     // ||   PLANNING   ||
     // ==================
 
+    async getObservingPlans({ commit }) {
+      // fetch user profile
+      const q = fb.firestoreLib.query(fb.firestoreLib.collection(fb.db, "observationBlocks"));
+      const querySnapshot = await fb.firestoreLib.getDocs(q);
+      var plans = []
+      querySnapshot.forEach((doc) => {
+        var plan = doc.data();
+        plan.id = doc.id;
+        plans.push(plan);
+      });
+      commit('setObservationPlans', plans)
+
+    },
+
     async getObservingPlan({ commit }, date) {
       // fetch user profile
-      console.log("getObservingPlan")
       const q = fb.firestoreLib.query(fb.firestoreLib.collection(fb.db, "observationBlocks"), fb.firestoreLib.where("date", "==", date), fb.firestoreLib.limit(1));
       const querySnapshot = await fb.firestoreLib.getDocs(q);
       var plan = null
@@ -176,7 +193,6 @@ export default new Vuex.Store({
         //for (var i = 0; i < plan.blocks.length;i++) {
           //plan.blocks[i].petition.optics = {}
         //}
-        console.log(plan)
         commit('setObservationPlan', plan)
       });
 
