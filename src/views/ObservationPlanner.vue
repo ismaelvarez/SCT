@@ -47,7 +47,7 @@
               <b-icon icon="trash" ></b-icon> Reset
             </b-button>
             <b-button variant="success" @click="save">
-              <b-icon icon="server"></b-icon> Save
+              <b-icon icon="cloud-upload"></b-icon> Save
             </b-button>
             <b-button variant="success">
               <b-icon icon="server"></b-icon> Move

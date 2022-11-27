@@ -1,5 +1,10 @@
 <template>
   <div class="home">
+    
+    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+ 
+    <!-- you can skip the following line if your page already integrates the jQuery library -->
+    <script type="application/javascript" src="https://code.jquery.com/jquery-1.12.1.min.js" charset="utf-8"></script>
     <TopNav/>
     <b-container fluid="md" class="p-1">
       <b-row align-content="center">
@@ -100,6 +105,16 @@
                   {{ formData.object.magnitude }}
                 </b-col>
               </b-row>
+              
+              <b-row align-content="center"  class="justify-content-md-center">
+                <b-col cols="6" offset="1">
+                  <b-button-group class="m-1">
+                    <b-button variant="primary" @click="aladinModal()">
+                      <b-icon icon="card-image" ></b-icon>  Aladin Image 
+                    </b-button>
+                  </b-button-group>
+                </b-col>
+              </b-row>
             </b-container>
 
             <b-alert v-if="searcher.error" show variant="danger"> {{ searcher.error }}</b-alert>
@@ -146,6 +161,21 @@
         </b-col>
       </b-row>
     </b-container>
+
+    <b-modal id="aladinModal" ref="aladinModal" size="lg" title="Aladin view">
+        <div id="aladin-lite-div"  style="height:400px"></div>
+
+        <script type="application/javascript">
+            var aladin = A.aladin('#aladin-lite-div', {
+              survey: "P/DSS2/color",
+              fov:4,
+              target: {{ "'" + searcher.name + "'"}},
+              reticleColor: "#ff89ff",
+              reticleSize: 64 
+            });
+        </script>
+      </b-modal>
+    <script type="application/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
   </div>
   
 </template>
@@ -275,6 +305,9 @@ export default {
         this.formData.description = petition.description,
         this.formData.object = petition.object
         this.searcher.name = petition.object.name
+      },
+      aladinModal() {
+        this.$refs['aladinModal'].show()
       }
     }
   }

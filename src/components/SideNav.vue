@@ -29,7 +29,7 @@
                       <router-link to="/">Telemetry</router-link>
                     </li>
                     <li class="nav-item" v-if="report">
-                      <router-link to="/report">Report</router-link>
+                      <router-link to="/plans">Plan List</router-link>
                     </li>
                     <li class="nav-item" v-if="blocks">
                       <router-link to="/planner">Planning</router-link>

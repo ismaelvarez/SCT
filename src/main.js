@@ -44,6 +44,23 @@ Vue.filter("formatNumber", function (value) {
   return value
 });
 
+Vue.mixin({
+  methods: {
+    getImage(object) {
+      var tmp = ""
+      try {
+          tmp = object.type + '';
+      } catch (error) {
+          tmp = object['subtype'] + '';
+      }
+      if (tmp+''.startsWith("SA")) {
+          return require("@/assets/img/galaxy.jpg")
+      }
+      return require("@/assets/img/all.jpeg")
+  },
+  },
+})
+
 
 new Vue({
   router,

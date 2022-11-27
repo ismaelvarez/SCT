@@ -198,6 +198,20 @@ export default new Vuex.Store({
 
     },
 
+    async getObservingPlanById({ commit }, id) {
+      // fetch user profile
+      const q = fb.firestoreLib.query(fb.firestoreLib.collection(fb.db, "observationBlocks"), fb.firestoreLib.where( fb.firestoreLib.documentId(), "==", id), fb.firestoreLib.limit(1));
+      const querySnapshot = await fb.firestoreLib.getDocs(q);
+      var plan = null
+      querySnapshot.forEach((doc) => {
+        plan = doc.data();
+        plan.id = doc.id;
+        this.observationPlanDoc = doc
+        commit('setObservationPlan', plan)
+      });
+
+    },
+
     async saveObservingPlan({ commit }, plan) {
       // fetch user profile
       //petition.status = "Created"

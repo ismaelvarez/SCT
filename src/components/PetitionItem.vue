@@ -53,18 +53,7 @@ export default {
         }
     },
     methods: {
-        getImage(object) {
-            var tmp = ""
-            try {
-                tmp = object.type + '';
-            } catch (error) {
-                tmp = object['subtype'] + '';
-            }
-            if (tmp+''.startsWith("SA")) {
-                return require("@/assets/img/galaxy.jpg")
-            }
-            return require("@/assets/img/all.jpeg")
-        },
+        
         startDrag: (evt, item) => {
             evt.dataTransfer.dropEffect = 'move'
             evt.dataTransfer.effectAllowed = 'move'
